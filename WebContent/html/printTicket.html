@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css"
+	href="../jquery-easyui-1.4.5/themes/default/easyui.css">
+<link rel="stylesheet" type="text/css"
+	href="../jquery-easyui-1.4.5/themes/icon.css">
+<script type="text/javascript" src="../jquery-easyui-1.4.5/jquery.min.js"></script>
+<script type="text/javascript"
+	src="../jquery-easyui-1.4.5/jquery.easyui.min.js"></script>
+<script type="text/javascript"
+	src="../jquery-easyui-1.4.5/locale/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="../js/send.js"></script>
+<script type="text/javascript">
+	function print() {
+		$("#printButton").hide();
+		$("#searchDiv").css("display", "inline");
+		$('#searchcontent').searchbox().next('span').find('input').focus();
+
+	}
+	function printBut() {
+		var rows = $('#dg').datagrid('getSelections');
+		if (rows.length == 0) {
+			$.messager.alert("提示", "请选择要打印的机票!");
+			return;
+		}
+		var idcard = $("#searchcontent").searchbox("getValue")
+		for (var i = 0; i < rows.length; i++) {
+			$.ajax({
+				type : "GET",
+				async : true,
+				url : "my.json",
+				success : function(data) {
+					//alert("aa");
+				}
+			});
+		}
+
+		$.messager.progress({
+			title : "正在打印，请稍后...",
+			interval : 500
+		});
+		setTimeout(function() {
+			$.messager.progress('close');
+			window.location.reload();
+		}, 5000);
+	}
+	function doSearch(value) {
+		$('#printForm').form('submit', {
+			type : "GET",
+			async : false,
+			url : "my.json",
+			onSubmit : function() {
+				if (!isNaN(value) && !value.length == 0) {
+					return true;
+				} else {
+					$("#searchcontent").focus();
+					return false;
+				}
+				return $("#printForm").form('validate');
+			},
+			success : function(data) {
+				$("#searchDiv").css("display", "none");
+				$('#dg').datagrid({
+					async : false,
+					data : eval(data),
+					columns : [ [ {
+						field : 'name',
+						title : '姓名',
+						width : 200,
+						align : 'center'
+					}, {
+						field : 'idcard',
+						title : '身份证号',
+						width : 200,
+						align : 'center'
+					}, {
+						field : 'flight',
+						title : '航班号',
+						width : 200,
+						align : 'center'
+					}, {
+						field : 'startPoint',
+						title : '出发地',
+						width : 100,
+						align : 'center'
+					}, {
+						field : 'endPoint',
+						title : '目的地',
+						width : 100,
+						align : 'center'
+					} ] ]
+				});
+				$("#printBt").css("display", "inline");
+			}
+		});
+	}
+</script>
+<title>打印机票</title>
+</head>
+<body>
+	<form id="printForm" method="get">
+		<input id="printButton" onclick="print()" type="button" value="打印机票"
+			style="width: 200px; height: 60px;">
+		<div id="searchDiv" style="display: none;">
+			<input class="easyui-searchbox" id="searchcontent"
+				name="searchcontent" autofocus="autofocus"
+				data-options="prompt:'请输入要您的身份证号',searcher:doSearch,required:true,validType:'idcard'"
+				style="width: 300px; height: 28px;"></input>
+		</div>
+		<div>
+			<table id="dg" title="请选择要打印的机票" style="width: 802px;"></table>
+		</div>
+		<div id="printBt"
+			style="display: none; margin-left: 602px; margin-top: 15px;">
+			<input id="printBt" onclick="printBut()" type="button" value="打印"
+				style="width: 200px; height: 60px;">
+		</div>
+	</form>
+</body>
+</html>
